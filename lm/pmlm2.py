@@ -33,6 +33,7 @@ OUT = {0: [0, 1, 3], 1: [2, 4]}
 CONT = {0: [0, 3], 1: [4]}
 HMAX = 4
 MAXLEN = 128
+DISTRACT = True
 QNP = [["the employer of", "the company of", "the workplace of"],
        ["the home city of", "the hometown of",
         "the city of residence of"],
@@ -211,7 +212,7 @@ def rag_prefix(world, rng, key, nfacts=8):
         ch = one_chain(world, s, rels)
         facts = ch if ch is not None else path_facts(world, s, rels)
     facts = list(facts[:nfacts])
-    while len(facts) < nfacts:
+    while DISTRACT and len(facts) < nfacts:
         r = rng.randrange(NR)
         s = rng.choice(world.groups[DOM[r]])
         objs = world.obj.get((s, r), ())
@@ -503,7 +504,10 @@ def main():
     ap.add_argument("--models", default="on,rag,off")
     ap.add_argument("--nq", type=int, default=400)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--no_distract", action="store_true")
     a = ap.parse_args()
+    global DISTRACT
+    DISTRACT = not a.no_distract
     torch.manual_seed(a.seed)
     rng = random.Random(a.seed)
     mem = Memory(a.D, a.L, a.seed)
