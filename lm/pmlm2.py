@@ -336,7 +336,9 @@ class Model(nn.Module):
             self.upd = nn.Sequential(nn.Linear(2 * d, d), nn.GELU(),
                                      nn.Linear(d, d))
             self.gate = nn.Linear(d, 1)
-            self.unk_mem = nn.Linear(d + 1, 1)
+            self.unk_mem = nn.Sequential(
+                nn.Linear(d + 2 * HMAX + 1, 64), nn.GELU(),
+                nn.Linear(64, 1))
             self.log_beta = nn.Parameter(torch.tensor(math.log(20.0)))
 
     def forward(self, x, apos, world):
@@ -378,12 +380,14 @@ class Model(nn.Module):
         state = hl
         prev_ids = prev_p = None
         hop_p, halts, conf = [], [], []
+        rel_ws = []
         for i in range(HMAX):
             q = self.rq(state + self.hop[i])
             att = torch.einsum("bd,btd->bt", q, keys) / math.sqrt(d)
             att = att.masked_fill(~valid, -1e9).softmax(-1)
             ctx = torch.einsum("bt,btd->bd", att, h)
             rel_w = self.rel_head(ctx).softmax(-1)
+            rel_ws.append(rel_w)
             if prev_ids is None:
                 addr, sw = qaddr, tw
             else:
@@ -406,8 +410,13 @@ class Model(nn.Module):
         alpha = torch.cat(halts, -1).softmax(-1)
         p_ent = torch.einsum("bh,bhn->bn", alpha,
                              torch.stack(hop_p, 1))
-        c = (alpha * torch.stack(conf, -1)).sum(-1, keepdim=True)
-        u = torch.sigmoid(self.unk_mem(torch.cat([hl, c], -1)))
+        cf = torch.stack(conf, -1)
+        weak = (alpha * torch.cummin(cf, -1).values).sum(
+            -1, keepdim=True)
+        self.last = (torch.stack(rel_ws, 1).detach(),
+                     alpha.detach())
+        u = torch.sigmoid(self.unk_mem(
+            torch.cat([hl, cf, alpha, weak], -1)))
         return torch.cat([(1 - u) * p_ent, u], -1)
 
 
@@ -481,6 +490,31 @@ def edit(world, frac, rng):
             new = rng.choice(comps)
         w2.obj[(s, 0)] = [new]
     return w2, chosen
+
+
+@torch.no_grad()
+def diag(model, world, items, bs=64):
+    model.eval()
+    rng = random.Random(0)
+    hop_ok = n_items = 0
+    rel_ok, rel_n = [0] * HMAX, [0] * HMAX
+    for i in range(0, len(items), bs):
+        chunk = items[i:i + bs]
+        x, apos, _ = encode(world, chunk, False, rng)
+        model(x, apos, world)
+        rw, al = model.last
+        rp = rw.argmax(-1).tolist()
+        hp = al.argmax(-1).tolist()
+        for j, it in enumerate(chunk):
+            rels = it[2][1]
+            n_items += 1
+            hop_ok += hp[j] == len(rels) - 1
+            for k, r in enumerate(rels):
+                rel_n[k] += 1
+                rel_ok[k] += rp[j][k] == r
+    model.train()
+    acc = [o / max(m, 1) for o, m in zip(rel_ok, rel_n)]
+    return hop_ok / n_items, acc
 
 
 def fmt(v):
@@ -557,6 +591,11 @@ def main():
         out[k] = (row, nrow, erow)
         log("  evaluated %s" % k)
 
+    dg = None
+    if "on" in models:
+        mem.write(W)
+        dg = diag(models["on"], W,
+                  [it for hs in same for it in hs])
     big = []
     for n in [int(v) for v in a.big.split(",")]:
         Wb = World(n, random.Random(3000 + n))
@@ -599,6 +638,11 @@ def main():
     print(" size  model  1-hop  2-hop  3-hop  4-hop")
     for n, k, r in big:
         print("%5d  %-5s  %s" % (n, k.upper(), fmt(r)))
+    if dg is not None:
+        print()
+        print("ON CONTROLLER DIAGNOSTIC (same world)")
+        print("hop count chosen correctly: %.3f" % dg[0])
+        print("relation correct at hop 1-4: %s" % fmt(dg[1]))
     log("done")
 
 
