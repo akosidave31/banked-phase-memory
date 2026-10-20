@@ -55,12 +55,21 @@ def load_kb(root):
 
 def load_qa(root, hop, split):
     d = os.path.join(root, "%d-hop" % hop)
-    qs = [l.rstrip("\n") for l in
-          open(os.path.join(d, "vanilla", "qa_%s.txt" % split),
-               encoding="utf-8")]
-    qt = [l.strip() for l in
-          open(os.path.join(d, "qa_%s_qtype.txt" % split),
-               encoding="utf-8")]
+    path = None
+    for c in (os.path.join(d, "vanilla", "qa_%s.txt" % split),
+              os.path.join(d, "qa_%s.txt" % split)):
+        if os.path.exists(c):
+            path = c
+            break
+    if path is None:
+        return []
+    qs = [l.rstrip("\n") for l in open(path, encoding="utf-8")]
+    tp = os.path.join(d, "qa_%s_qtype.txt" % split)
+    if os.path.exists(tp):
+        qt = [l.strip() for l in open(tp, encoding="utf-8")]
+    else:
+        qt = [re.sub(r"\[.+?\]", "[E]", l.partition("\t")[0])
+              for l in qs]
     assert len(qs) == len(qt), (hop, len(qs), len(qt))
     out = []
     for line, t in zip(qs, qt):
@@ -328,6 +337,8 @@ def main():
     for hop in (1, 2, 3):
         rows = [v for (h, _), v in res.items() if h == hop]
         n = sum(v["n"] for v in rows)
+        if not n:
+            continue
         print("%d   %7d  %10d  %s" % (hop, n, data[hop][1], "  ".join(
             "%7.4f" % (sum(v.get(c, 0) for v in rows) / n) for c in cols)))
     print()
@@ -340,6 +351,9 @@ def main():
         for t in sorted(data[hop][0]):
             v = res[(hop, t)]
             path, rm, fs = paths[(hop, t)]
+            worst = min([v["sym"]] + [v[c] for c in cols[1:]])
+            if len(data[hop][0]) > 40 and worst >= 0.97 * v["n"]:
+                continue
             ps = " > ".join(rname(r) for r in path) if path else "-"
             print("%d %-36s %5d %-24s %2s %4.2f %6.3f  %s"
                   % (hop, t[:36], v["n"], ps, "y" if rm else "n", fs,
