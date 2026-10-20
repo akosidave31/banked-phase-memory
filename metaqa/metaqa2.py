@@ -53,9 +53,14 @@ class SpreadMem(M.BankMem):
             x1, x2 = self.route(skey(i), nb)
             b1s.append(x1.cpu())
             b2s.append(x2.cpu())
-        load, fb = [0] * nb, []
-        for x1, x2 in zip(torch.cat(b1s).tolist(), torch.cat(b2s).tolist()):
-            b = x2 if load[x2] < load[x1] else x1
+        load, fb, unit = [0] * nb, [], {}
+        for x, rr, sl, x1, x2 in zip(s.tolist(), r.tolist(), slot.tolist(),
+                                     torch.cat(b1s).tolist(),
+                                     torch.cat(b2s).tolist()):
+            b = unit.get((x, rr, sl))
+            if b is None:
+                b = x2 if load[x2] < load[x1] else x1
+                unit[(x, rr, sl)] = b
             load[b] += 1
             fb.append(b)
         fb = torch.tensor(fb)
@@ -216,13 +221,12 @@ def main():
     log("symbolic check done")
 
     St, Rt, Ot = torch.tensor(S), torch.tensor(Rr), torch.tensor(O)
-    configs = [("plain", 5), ("plain", 20), ("spread", 5), ("spread", 20),
-               ("spread", 50)]
+    configs = [("spread", 5), ("spread", 20)]
     info = {}
     plain = M.BankMem(len(names), 2 * NB, a.D, a.seed)
     plain.write(St, Rt, Ot, a.L)
     info["plain"] = max(plain.load)
-    for name, K in configs[:2]:
+    for name, K in []:
         for k, e in agg.items():
             e[(name, K)] = hits(plain, e["items"], k[1], k[2], K, False,
                                 a.cap)
@@ -236,7 +240,7 @@ def main():
     over = int((sp.deg > a.L * a.cap).sum())
     log("spread memory: %d banks, fullest %d, keys over cap: %d"
         % (sp.nb, max(sp.load), over))
-    for name, K in configs[2:]:
+    for name, K in configs:
         for k, e in agg.items():
             e[(name, K)] = hits(sp, e["items"], k[1], k[2], K, True, a.cap)
         log("spread K=%d done" % K)
