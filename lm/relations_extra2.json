@@ -1,0 +1,36 @@
+{
+  "located_in": {
+    "noun_phrases": [
+      {"text": "the premises of", "family": "premises"},
+      {"text": "the premises used by", "family": "premises"},
+      {"text": "the whereabouts of", "family": "whereabouts"},
+      {"text": "the headquarters of", "family": "headquarter"},
+      {"text": "the HQ of", "family": "hq"},
+      {"text": "the hub of", "family": "hub"},
+      {"text": "the site of", "family": "site"},
+      {"text": "the campus of", "family": "campus"},
+      {"text": "the offices of", "family": "office"},
+      {"text": "the registered office of", "family": "register"},
+      {"text": "the nerve center of", "family": "nerve"},
+      {"text": "the grounds of", "family": "grounds"},
+      {"text": "the compound of", "family": "compound"},
+      {"text": "the main facility of", "family": "facility"},
+      {"text": "the tower of", "family": "tower"}
+    ],
+    "questions": [
+      {"text": "What are the whereabouts of {X}?", "family": "whereabouts"},
+      {"text": "Where is the hub of {X}?", "family": "hub"},
+      {"text": "Where are the grounds of {X}?", "family": "grounds"},
+      {"text": "Where is the compound of {X}?", "family": "compound"}
+    ]
+  },
+  "ceo": {
+    "noun_phrases": [
+      {"text": "the person in the corner office of", "family": "office"},
+      {"text": "the occupant of the top office at", "family": "office"}
+    ],
+    "questions": [
+      {"text": "Who sits in the corner office at {X}?", "family": "office"}
+    ]
+  }
+}
