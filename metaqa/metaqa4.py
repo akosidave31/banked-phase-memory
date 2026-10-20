@@ -300,6 +300,14 @@ def main():
     gold_new = [M2.follow2(adj, q["tid"], q["lp"], q["lm"]) for q in Q]
     after = run_mem(mem, Q, a)
     log("answered with the edited memory")
+    sync()
+    t0 = time.time()
+    for s, r, o, o2 in reversed(edits):
+        mem.change(s, r, o2, o, NB)
+    sync()
+    t_rev = time.time() - t0
+    restored = run_mem(mem, Q, a)
+    log("reverted all edits in %.3fs and answered again" % t_rev)
 
     st = {h: collections.Counter() for h in hops}
     for i, q in enumerate(Q):
@@ -316,10 +324,23 @@ def main():
             c["hit_aff"] += after[i] in gn
             c["ctrl"] += before[i] in gn
             c["leak"] += after[i] in (go - gn)
+            if not (go & gn):
+                c["n_full"] += 1
+                c["hit_full"] += after[i] in gn
+                c["ctrl_full"] += before[i] in gn
+                c["leak_full"] += after[i] in go
         else:
             c["n_un"] += 1
             c["hit_un"] += after[i] in gn
             c["same_un"] += after[i] == before[i]
+
+    for i, q in enumerate(Q):
+        c = st[q["hop"]]
+        c["n_all"] += 1
+        c["same_rev"] += restored[i] == before[i]
+        if gold_old[i]:
+            c["n_rev"] += 1
+            c["hit_rev"] += restored[i] in gold_old[i]
 
     def f(c, k, n):
         return "%7.4f" % (c[k] / c[n]) if c[n] else "      -"
@@ -335,6 +356,7 @@ def main():
                                               names[o][:24], names[o2][:24]))
     print("edit time: %.3f s total, %.2f ms per edit (full memory rebuild: "
           "%.1f s)" % (t_edit, 1000 * t_edit / max(len(edits), 1), t_build))
+    print("revert time: %.3f s for all %d edits" % (t_rev, len(edits)))
     print("gold = exact lookup on the current knowledge base along each "
           "question's path")
     print()
@@ -348,6 +370,13 @@ def main():
              ("hit_aff", "n_aff")),
             ("control: OLD memory on affected questions", ("ctrl", "n_aff")),
             ("old answer leaked (affected)", ("leak", "n_aff")),
+            ("STRICT: answers fully replaced", "n_full"),
+            ("STRICT after edits: Hits@1", ("hit_full", "n_full")),
+            ("STRICT control: OLD memory", ("ctrl_full", "n_full")),
+            ("STRICT old answer given", ("leak_full", "n_full")),
+            ("after REVERT: Hits@1 vs original gold", ("hit_rev", "n_rev")),
+            ("after REVERT: same answer as before edits",
+             ("same_rev", "n_all")),
             ("unaffected answers unchanged", ("same_un", "n_un")),
             ("questions with no answer after edits", "empty_after")]
     for label, spec in rows:
