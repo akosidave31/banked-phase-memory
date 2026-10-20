@@ -1,0 +1,168 @@
+{
+  "works_at": {
+    "noun_phrases": [
+      {"text": "the company served by", "family": "serve"},
+      {"text": "the firm served by", "family": "serve"},
+      {"text": "the company joined by", "family": "join"},
+      {"text": "the firm that was joined by", "family": "join"},
+      {"text": "the organization most recently joined by", "family": "join"},
+      {"text": "the firm that recruited", "family": "recruit"},
+      {"text": "the company that recruited", "family": "recruit"},
+      {"text": "the company that signed", "family": "sign"},
+      {"text": "the firm that signed on", "family": "sign"},
+      {"text": "the firm retaining", "family": "retain"},
+      {"text": "the company that retains", "family": "retain"},
+      {"text": "the business that engages", "family": "engage"},
+      {"text": "the firm that engaged", "family": "engage"},
+      {"text": "the firm whose uniform is worn by", "family": "uniform"},
+      {"text": "the company named on the badge of", "family": "badge"},
+      {"text": "the firm on the ID card of", "family": "badge"},
+      {"text": "the company that onboarded", "family": "onboard"},
+      {"text": "the business that brought on", "family": "onboard"},
+      {"text": "the company that schedules the shifts of", "family": "shift"},
+      {"text": "the company holding the contract of", "family": "contract"},
+      {"text": "the firm under contract with", "family": "contract"},
+      {"text": "the outfit that gets the labor of", "family": "labor"},
+      {"text": "the firm that gives a desk to", "family": "desk"}
+    ],
+    "questions": [
+      {"text": "Which company does {X} serve?", "family": "serve"},
+      {"text": "Which company did {X} join?", "family": "join"},
+      {"text": "What firm has {X} joined?", "family": "join"},
+      {"text": "Which firm recruited {X}?", "family": "recruit"},
+      {"text": "Which company signed {X}?", "family": "sign"},
+      {"text": "Which firm retains {X}?", "family": "retain"},
+      {"text": "What business engages {X}?", "family": "engage"},
+      {"text": "Whose uniform does {X} wear?", "family": "uniform"},
+      {"text": "Which company is named on {X}'s badge?", "family": "badge"},
+      {"text": "Which company onboarded {X}?", "family": "onboard"},
+      {"text": "Which company schedules {X}'s shifts?", "family": "shift"},
+      {"text": "Which firm is {X} under contract with?", "family": "contract"}
+    ]
+  },
+  "lives_in": {
+    "noun_phrases": [
+      {"text": "the town dwelt in by", "family": "dwell"},
+      {"text": "the dwelling place of", "family": "dwell"},
+      {"text": "the city of dwelling of", "family": "dwell"},
+      {"text": "the city moved to by", "family": "move"},
+      {"text": "the town most recently moved to by", "family": "move"},
+      {"text": "the city of the apartment rented by", "family": "rent"},
+      {"text": "the city of the flat rented by", "family": "rent"},
+      {"text": "the city with the apartment of", "family": "apartment"},
+      {"text": "the town containing the apartment of", "family": "apartment"},
+      {"text": "the city in the mailing address of", "family": "postal"},
+      {"text": "the town on the postal address of", "family": "postal"},
+      {"text": "the city of abode of", "family": "abode"},
+      {"text": "the abode of", "family": "abode"},
+      {"text": "the town lodging", "family": "lodge"},
+      {"text": "the city that lodges", "family": "lodge"},
+      {"text": "the city of the neighborhood of", "family": "neighbor"},
+      {"text": "the town occupied by", "family": "occupy"},
+      {"text": "the city providing a roof for", "family": "roof"}
+    ],
+    "questions": [
+      {"text": "In which city does {X} dwell?", "family": "dwell"},
+      {"text": "Where does {X} dwell?", "family": "dwell"},
+      {"text": "Which city did {X} move to?", "family": "move"},
+      {"text": "Where does {X} rent an apartment?", "family": "rent"},
+      {"text": "What city is in {X}'s mailing address?", "family": "postal"},
+      {"text": "Where is {X}'s abode?", "family": "abode"},
+      {"text": "Which town lodges {X}?", "family": "lodge"},
+      {"text": "Which city is {X}'s neighborhood in?", "family": "neighbor"},
+      {"text": "Which city puts a roof over {X}'s head?", "family": "roof"}
+    ]
+  },
+  "located_in": {
+    "noun_phrases": [
+      {"text": "the city of the premises of", "family": "premises"},
+      {"text": "the town containing the premises of", "family": "premises"},
+      {"text": "the city of the main facility of", "family": "facility"},
+      {"text": "the town with the main plant of", "family": "facility"},
+      {"text": "the campus city of", "family": "campus"},
+      {"text": "the city of the campus of", "family": "campus"},
+      {"text": "the HQ city of", "family": "hq"},
+      {"text": "the city with the HQ of", "family": "hq"},
+      {"text": "the anchor city of", "family": "anchor"},
+      {"text": "the flagship city of", "family": "flagship"},
+      {"text": "the city with the flagship building of", "family": "flagship"},
+      {"text": "the nerve center city of", "family": "nerve"},
+      {"text": "the city with the tower of", "family": "tower"},
+      {"text": "the city of the leased offices of", "family": "lease"},
+      {"text": "the registration city of", "family": "registration"}
+    ],
+    "questions": [
+      {"text": "In which city are the premises of {X}?", "family": "premises"},
+      {"text": "Which city has the main facility of {X}?", "family": "facility"},
+      {"text": "Where is the campus of {X}?", "family": "campus"},
+      {"text": "Where is the HQ of {X}?", "family": "hq"},
+      {"text": "Which city has {X}'s HQ?", "family": "hq"},
+      {"text": "In what city is {X} situated?", "family": "situate"},
+      {"text": "Where is {X} situated?", "family": "situate"},
+      {"text": "Which city has {X}'s flagship building?", "family": "flagship"},
+      {"text": "In which city does {X} have its tower?", "family": "tower"},
+      {"text": "Where does {X} lease its offices?", "family": "lease"}
+    ]
+  },
+  "friend": {
+    "noun_phrases": [
+      {"text": "an ally of", "family": "ally"},
+      {"text": "a loyal ally of", "family": "ally"},
+      {"text": "an amigo of", "family": "amigo"},
+      {"text": "an acquaintance of", "family": "acquaint"},
+      {"text": "a friendly acquaintance of", "family": "acquaint"},
+      {"text": "a sidekick of", "family": "sidekick"},
+      {"text": "someone trusted by", "family": "trust"},
+      {"text": "a person trusted by", "family": "trust"},
+      {"text": "someone who socializes with", "family": "socialize"},
+      {"text": "someone in the inner circle of", "family": "circle"},
+      {"text": "a member of the social circle of", "family": "circle"},
+      {"text": "a comrade of", "family": "comrade"},
+      {"text": "a kindred spirit of", "family": "kindred"},
+      {"text": "someone who often dines with", "family": "dine"},
+      {"text": "someone in the crew of", "family": "crew"}
+    ],
+    "questions": [
+      {"text": "Who is an ally of {X}?", "family": "ally"},
+      {"text": "Who is an acquaintance of {X}?", "family": "acquaint"},
+      {"text": "Who is {X}'s sidekick?", "family": "sidekick"},
+      {"text": "Whom does {X} trust?", "family": "trust"},
+      {"text": "Who does {X} socialize with?", "family": "socialize"},
+      {"text": "Who is in {X}'s inner circle?", "family": "circle"},
+      {"text": "Who does {X} often dine with?", "family": "dine"},
+      {"text": "Who is a comrade of {X}?", "family": "comrade"}
+    ]
+  },
+  "ceo": {
+    "noun_phrases": [
+      {"text": "the president of", "family": "president"},
+      {"text": "the company president of", "family": "president"},
+      {"text": "the person at the top of", "family": "top"},
+      {"text": "the top person at", "family": "top"},
+      {"text": "the person commanding", "family": "command"},
+      {"text": "the one in command of", "family": "command"},
+      {"text": "the captain of", "family": "captain"},
+      {"text": "the person governing", "family": "govern"},
+      {"text": "the person who oversees", "family": "oversee"},
+      {"text": "the overseer of", "family": "oversee"},
+      {"text": "the person controlling", "family": "control"},
+      {"text": "the one in control of", "family": "control"},
+      {"text": "the principal of", "family": "principal"},
+      {"text": "the figurehead of", "family": "figurehead"},
+      {"text": "the person piloting", "family": "pilot"},
+      {"text": "the chairperson of", "family": "chair"}
+    ],
+    "questions": [
+      {"text": "Who is the president of {X}?", "family": "president"},
+      {"text": "Who is at the top of {X}?", "family": "top"},
+      {"text": "Who commands {X}?", "family": "command"},
+      {"text": "Who is in command of {X}?", "family": "command"},
+      {"text": "Who oversees {X}?", "family": "oversee"},
+      {"text": "Who governs {X}?", "family": "govern"},
+      {"text": "Who controls {X}?", "family": "control"},
+      {"text": "Who captains {X}?", "family": "captain"},
+      {"text": "Who chairs {X}?", "family": "chair"},
+      {"text": "Who pilots {X}?", "family": "pilot"}
+    ]
+  }
+}
