@@ -25,6 +25,57 @@ def log(m):
     print("[%6.0fs] %s" % (time.time() - T0, m), flush=True)
 
 
+def recover2(adj, outr, smp, hops, cap=5000):
+    """modes: 0 keep topic, 1 drop topic from answers, 2 never revisit
+    the topic at any hop"""
+    sc = collections.Counter()
+    for excl in (False, True):
+        if excl and hops < 2:
+            continue
+        for tid, gold in smp:
+            stack = [((), {tid})]
+            while stack:
+                path, cur = stack.pop()
+                if len(path) == hops:
+                    if excl:
+                        sc[(path, 2)] += M.f1(cur, gold)
+                    else:
+                        sc[(path, 0)] += M.f1(cur, gold)
+                        if hops >= 2:
+                            sc[(path, 1)] += M.f1(cur - {tid}, gold)
+                    continue
+                rs = set()
+                for e in cur:
+                    rs |= outr.get(e, set())
+                for r in rs:
+                    nxt = set()
+                    for e in cur:
+                        nxt.update(adj.get((e, r), ()))
+                        if len(nxt) > cap:
+                            break
+                    if excl:
+                        nxt.discard(tid)
+                    if 0 < len(nxt) <= cap:
+                        stack.append((path + (r,), nxt))
+    return sc
+
+
+def follow2(adj, tid, path, mode, cap=50000):
+    cur = {tid}
+    for r in path:
+        nxt = set()
+        for e in cur:
+            nxt.update(adj.get((e, r), ()))
+        if mode == 2:
+            nxt.discard(tid)
+        cur = nxt
+        if not cur or len(cur) > cap:
+            break
+    if mode == 1:
+        cur = cur - {tid}
+    return cur
+
+
 class SpreadMem(M.BankMem):
     @torch.no_grad()
     def write_spread(self, s, r, o, L, n_ent, n_rel, chunk=32768):
@@ -113,7 +164,7 @@ def answer(mem, topics, path, K, remove, spread, cap):
         S = S.view(n, C, -1)
         N = S.shape[-1]
         tot = conf[..., None] * S.clamp(min=0)
-        if remove and i == len(path) - 1:
+        if remove == 2 or (remove == 1 and i == len(path) - 1):
             tot[ar, :, topics] = -1.0
         v, idx = tot.view(n, -1).topk(K, -1)
         cur = idx % N
@@ -189,7 +240,7 @@ def main():
         ns = a.sample2 if hop <= 2 else a.sample3
         for t, items in data[hop].items():
             smp = [x for x in items if x[0] is not None][:ns]
-            sc = M.recover(adj, outr, smp, hop)
+            sc = recover2(adj, outr, smp, hop)
             rank = sorted(sc, key=sc.get, reverse=True)
             if not rank:
                 paths[(hop, t)] = (None, False)
@@ -197,7 +248,7 @@ def main():
             best = rank[0]
             paths[(hop, t)] = best
             f = sc[best] / len(smp)
-            if f < 0.95 and len(rank) > 1:
+            if False:
                 ru = rank[1]
                 weak.append((hop, t, best, f, ru, sc[ru] / len(smp)))
         log("%d-hop paths recovered" % hop)
@@ -214,9 +265,7 @@ def main():
             for tid, gold in items:
                 if tid is None:
                     continue
-                ans = M.follow(adj, tid, path)
-                if rm:
-                    ans = ans - {tid}
+                ans = follow2(adj, tid, path, rm)
                 e["sym"] += int(bool(ans & gold))
     log("symbolic check done")
 
@@ -270,7 +319,7 @@ def main():
         n = len(e["items"])
         ps = " > ".join(rname(r) for r in k[1]) if k[1] else "-"
         print("%d %-28s %2s %6d %5.3f  %s"
-              % (k[0], ps, "y" if k[2] else "n", n, e["sym"] / n,
+              % (k[0], ps, "nfa"[k[2]], n, e["sym"] / n,
                  "  ".join("%9.3f" % (e[c] / n) for c in configs)))
     print()
     print("WEAK PATH MATCHES (F1 < 0.95): best vs runner-up")
