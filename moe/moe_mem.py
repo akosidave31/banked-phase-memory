@@ -508,8 +508,10 @@ def main():
     prior = {r: c.most_common(1)[0][0] for r, c in cnt.items()}
     head = {i for i, n_ in enumerate(rels) if n_ in HEAD}
 
+    gref = [facts.obj]
+
     def acc(preds, qs, sub=None):
-        ok = [p in facts.obj[q] for p, q in zip(preds, qs)
+        ok = [p in gref[0][q] for p, q in zip(preds, qs)
               if sub is None or q[1] in sub]
         return sum(ok) / max(len(ok), 1)
 
@@ -526,6 +528,7 @@ def main():
                 R[name, tag, "blank"] = queries(m, reader, facts, qs,
                                                 blank=True)[0]
     log("evaluated")
+    gold0 = {q: set(facts.obj[q]) for q in seen + unseen}
 
     def pick(qs):
         c = [q for q in qs if q[1] in head and len(facts.obj[q]) == 1]
@@ -574,6 +577,7 @@ def main():
     def row(label, b, mm):
         print("%-54s %10s %13s" % (label, f3(b), f3(mm)))
 
+    gref[0] = gold0
     pri = {"seen": [prior.get(q[1], -1) for q in seen],
            "unseen": [prior.get(q[1], -1) for q in unseen]}
     print()
@@ -600,8 +604,9 @@ def main():
             acc(pri[tag], qs, head))
         row("  memory blanked, all relations", None,
             acc(R["memory", tag, "blank"], qs))
-        row("  gate (memory share) / controller relation accuracy",
-            R["memory", tag, "gate"], R["memory", tag, "rel"])
+        print("  MoE + memory: gate (memory share) %.3f, controller "
+              "relation accuracy %.3f" % (R["memory", tag, "gate"],
+                                          R["memory", tag, "rel"]))
     print()
     print("EDITS: %d single-answer DWAY facts changed in memory in %.3f s "
           "(%.2f ms each); nothing retrained"
